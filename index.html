@@ -179,7 +179,7 @@
             } else {
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('current-user-display').innerText = `@${currentSRKID} (Выйти)`;
-                switchTab(currentTab);
+                window.switchTab(currentTab);
             }
         }
 
@@ -249,7 +249,7 @@
                 title: title,
                 text: text,
                 timestamp: Date.now()
-            }).then(() => { switchTab('new'); });
+            }).then(() => { window.switchTab('new'); });
         }
         window.createReply = function(rootId) {
             const textInput = document.getElementById('reply-input');
@@ -279,7 +279,7 @@
             if (index > -1) following.splice(index, 1);
             else following.push(authorId);
             localStorage.setItem(`following_${currentSRKID}`, JSON.stringify(following));
-            if (activeRootId) viewRoot(activeRootId); else switchTab(currentTab);
+            if (activeRootId) window.viewRoot(activeRootId); else window.switchTab(currentTab);
         }
 
         window.viewRoot = function(rootId) {
@@ -296,7 +296,7 @@
                 : `<span style="background:#5865F2; padding:3px 8px; border-radius:10px; font-size:11px; font-weight:bold;">🌿 ВЕТКА (${messagesCount})</span>`;
 
             let html = `
-                <button class="submit-btn" onclick="switchTab('${currentTab}')" style="width:100px; margin-bottom:10px;">⬅ Назад</button>
+                <button class="submit-btn" onclick="window.switchTab('${currentTab}')" style="width:100px; margin-bottom:10px;">⬅ Назад</button>
                 <div class="thread-card" style="border-left-color: #ffd700;">
                     <div class="thread-header">
                         <div class="thread-author">Автор рута: @${escapeHtml(root.author)} ${statusBadge}</div>
@@ -321,7 +321,7 @@
                 </div>
                 <div class="create-thread-form">
                     <textarea id="reply-input" class="input-field" rows="3" placeholder="Написать ответ в ветку..."></textarea>
-                    <button class="submit-btn" onclick="createReply('${root.id}')">Отправить ответ</button>
+                    <button class="submit-btn" onclick="window.createReply('${root.id}')">Отправить ответ</button>
                 </div>
             `;
             container.innerHTML = html;
@@ -335,7 +335,7 @@
                     ...data[key]
                 })).sort((a, b) => b.timestamp - a.timestamp);
             }
-            if (activeRootId) viewRoot(activeRootId); else switchTab(currentTab);
+            if (activeRootId) window.viewRoot(activeRootId); else window.switchTab(currentTab);
         });
 
         function renderRoots(rootsList, titleText) {
@@ -352,7 +352,7 @@
                 const isSubbed = following.includes(root.author);
                 const subBtnText = isSubbed ? 'Отписаться' : 'Подписаться';
                 const subClass = isSubbed ? 'subscribed' : '';
-                const subButtonHtml = root.author !== currentSRKID ? `<button class="sub-btn ${subClass}" onclick="toggleSubscribe('${root.author}')">${subBtnText}</button>` : '';
+                const subButtonHtml = root.author !== currentSRKID ? `<button class="sub-btn ${subClass}" onclick="window.toggleSubscribe('${root.author}')">${subBtnText}</button>` : '';
 
                 const typeLabel = messagesCount > 100 ? '🌳 Три (Tree)' : '🌿 Ветка (Thread)';
 
@@ -363,11 +363,11 @@
                         <div class="thread-author">Автор: @${escapeHtml(root.author)} | <b style="color:var(--text-muted)">${typeLabel} (${messagesCount} отв.)</b></div>
                         ${subButtonHtml}
                     </div>
-                    <h3 class="thread-title" style="cursor:pointer; color:var(--accent);" onclick="viewRoot('${root.id}')">${escapeHtml(root.title)}</h3>
+                    <h3 class="thread-title" style="cursor:pointer; color:var(--accent);" onclick="window.viewRoot('${root.id}')">${escapeHtml(root.title)}</h3>
                     <p class="thread-text">${escapeHtml(root.text)}</p>
                     <div class="actions-row">
-                        <button class="like-btn ${isLikedByMe}" onclick="toggleLike('${root.id}')">❤️ <span>${totalLikes}</span></button>
-                        <button class="like-btn" onclick="viewRoot('${root.id}')">💬 Открыть ветку</button>
+                        <button class="like-btn ${isLikedByMe}" onclick="window.toggleLike('${root.id}')">❤️ <span>${totalLikes}</span></button>
+                        <button class="like-btn" onclick="window.viewRoot('${root.id}')">💬 Открыть ветку</button>
                     </div>
                 `;
                 container.appendChild(card);
