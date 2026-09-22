@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRKChat — Пространство Стёпы, Ромы, Кати</title>
+    <style>
+        :root {
+            --bg-main: #1e1e24;
+            --bg-sidebar: #141419;
+            --bg-card: #2a2a32;
+            --accent: #5865F2;
+            --text-color: #ffffff;
+            --text-muted: #949ba4;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-color);
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: var(--bg-sidebar);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-right: 1px solid #2d2d35;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+
+        .menu-btn:hover, .menu-btn.active {
+            background-color: var(--bg-card);
+            color: var(--text-color);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .create-thread-form {
+            background-color: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 600px;
+        }
+
+        .input-field {
+            background-color: var(--bg-main);
+            border: 1px solid #3f3f4a;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .submit-btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: #4752c4;
+        }
+
+        .thread-card {
+            background-color: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 5px solid var(--accent);
+            max-width: 600px;
+        }
+
+        .thread-author {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .thread-title {
+            font-size: 18px;
+            margin: 0 0 10px 0;
+            color: #fff;
+        }
+
+        .thread-text {
+            margin: 0;
+            color: #dcddde;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">SRKChat</div>
+        <button class="menu-btn active" id="btn-new" onclick="switchTab('new')">🆕 Новейшие ветки</button>
+        <button class="menu-btn" id="btn-create" onclick="switchTab('create')">✍️ Создать ветку</button>
+    </div>
+
+    <div class="main-content" id="feed-container">
+        <!-- Контент управляется JS -->
+    </div>
+
+    <!-- Подключаем Firebase модули через CDN (Модульный синтаксис 2026 года) -->
+    <script type="module">
+        import { initializeApp } from "https://unpkg.com";
+        import { getDatabase, ref, push, onValue } from "https://unpkg.com";
+
+        // !!! ВСТАВЬ СЮДА СВОИ ДАННЫЕ ИЗ КОНСОЛИ FIREBASE !!!
+        const firebaseConfig = {
+            apiKey: "AIzaSyBSGYaM4f52xHRggUpf8Y7IgeSjyWHqu7Q",
+            authDomain: "srkchat-a8a58.firebaseapp.com",
+            databaseURL: "https://srkchat-a8a58-default-rtdb.firebaseio.com",
+            projectId: "srkchat-a8a58",
+            storageBucket: "srkchat-a8a58.firebasestorage.app",
+            messagingSenderId: "18129792978",
+            appId: "1:18129792978:web:cb5c28f01ba347bb09e20b"
+        };
+
+        // Инициализация Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Глобальный массив для хранения веток
+        let allThreads = [];
+
+        // Переключение вкладок
+        window.switchTab = function(tab) {
+            const container = document.getElementById('feed-container');
+            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+            
+            if(tab === 'create') {
+                document.getElementById('btn-create').classList.add('active');
+                container.innerHTML = `
+                    <h2>Создать новую ветку (Рут)</h2>
+                    <div class="create-thread-form">
+                        <input type="text" id="srkid-input" class="input-field" placeholder="Твой SRKID (например, Stepa_01)">
+                        <input type="text" id="title-input" class="input-field" placeholder="Главный заголовок ветки">
+                        <textarea id="text-input" class="input-field" rows="5" placeholder="Текст твоего рута..."></textarea>
+                        <button class="submit-btn" id="send-btn">Запустить ветку</button>
+                    </div>
+                `;
+                document.getElementById('send-btn').onclick = createThread;
+            } else if (tab === 'new') {
+                document.getElementById('btn-new').classList.add('active');
+                renderThreads();
+            }
+        }
+
+        // Функция отправки ветки в Firebase
+        function createThread() {
+            const srkid = document.getElementById('srkid-input').value.trim();
+            const title = document.getElementById('title-input').value.trim();
+            const text = document.getElementById('text-input').value.trim();
+
+            if (!srkid || !title || !text) {
+                alert("Заполни все поля, Стёп!");
+                return;
+            }
+
+            // Отправляем объект в ветку 'threads' базы данных
+            push(ref(db, 'threads'), {
+                author: srkid,
+                title: title,
+                text: text,
+                timestamp: Date.now()
+            }).then(() => {
+                switchTab('new'); // Переключаемся на главную после отправки
+            }).catch((error) => {
+                alert("Ошибка отправки: " + error.message);
+            });
+        }
+
+        // Слушаем изменения в базе Firebase в реальном времени
+        onValue(ref(db, 'threads'), (snapshot) => {
+            allThreads = [];
+            const data = snapshot.val();
+            if (data) {
+                // Превращаем объект Firebase в массив и сортируем (новые сверху)
+                allThreads = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
+            }
+            // Если мы сейчас на вкладке "Новейшие", обновляем интерфейс
+            if (document.getElementById('btn-new').classList.contains('active')) {
+                renderThreads();
+            }
+        });
+
+        // Функция отрисовки веток на экране
+        function renderThreads() {
+            const container = document.getElementById('feed-container');
+            container.innerHTML = `<h2>🆕 Новейшие ветки</h2>`;
+
+            if (allThreads.length === 0) {
+                container.innerHTML += `<p style="color: var(--text-muted)">Веток пока нет. Будь первым, кто создаст рут!</p>`;
+                return;
+            }
+
+            allThreads.forEach(thread => {
+                const card = document.createElement('div');
+                card.className = 'thread-card';
+                card.innerHTML = `
+                    <div class="thread-author">Автор: @${escapeHtml(thread.author)}</div>
+                    <h3 class="thread-title">${escapeHtml(thread.title)}</h3>
+                    <p class="thread-text">${escapeHtml(thread.text)}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Защита от вредоносного кода (XSS)
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // Стартовый запуск
+        switchTab('new');
+    </script>
+</body>
+</html>
