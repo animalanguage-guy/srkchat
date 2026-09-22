@@ -10,8 +10,11 @@
             --bg-sidebar: #141419;
             --bg-card: #2a2a32;
             --accent: #5865F2;
+            --accent-hover: #4752c4;
             --text-color: #ffffff;
             --text-muted: #949ba4;
+            --like-color: #f84b64;
+            --sub-color: #23a55a;
         }
 
         body {
@@ -23,6 +26,25 @@
             height: 100vh;
         }
 
+        .auth-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .auth-box {
+            background-color: var(--bg-card);
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            max-width: 400px;
+            width: 90%;
+        }
+
         .sidebar {
             width: 250px;
             background-color: var(--bg-sidebar);
@@ -32,120 +54,107 @@
             gap: 10px;
             border-right: 1px solid #2d2d35;
         }
-
         .logo {
             font-size: 22px;
             font-weight: bold;
             color: var(--accent);
-            margin-bottom: 20px;
+            margin-bottom: 5px;
             text-align: center;
         }
-
-        .menu-btn {
-            background: none;
-            border: none;
+        .user-tag {
+            font-size: 13px;
             color: var(--text-muted);
-            padding: 12px 15px;
-            text-align: left;
-            font-size: 15px;
+            text-align: center;
+            margin-bottom: 20px;
             cursor: pointer;
-            border-radius: 8px;
-            transition: 0.2s;
         }
-
+        .menu-btn {
+            background: none; border: none; color: var(--text-muted);
+            padding: 12px 15px; text-align: left; font-size: 15px;
+            cursor: pointer; border-radius: 8px; transition: 0.2s;
+        }
         .menu-btn:hover, .menu-btn.active {
-            background-color: var(--bg-card);
-            color: var(--text-color);
+            background-color: var(--bg-card); color: var(--text-color);
         }
 
         .main-content {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            flex: 1; padding: 30px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 20px;
         }
-
         .create-thread-form {
-            background-color: var(--bg-card);
-            padding: 20px;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-width: 600px;
+            background-color: var(--bg-card); padding: 20px;
+            border-radius: 12px; display: flex; flex-direction: column; gap: 12px; max-width: 600px;
         }
-
         .input-field {
-            background-color: var(--bg-main);
-            border: 1px solid #3f3f4a;
-            color: white;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 14px;
+            background-color: var(--bg-main); border: 1px solid #3f3f4a;
+            color: white; padding: 12px; border-radius: 6px; font-size: 14px;
         }
-
         .submit-btn {
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
+            background-color: var(--accent); color: white; border: none;
+            padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s;
         }
-
-        .submit-btn:hover {
-            background-color: #4752c4;
-        }
+        .submit-btn:hover { background-color: var(--accent-hover); }
 
         .thread-card {
-            background-color: var(--bg-card);
-            padding: 20px;
-            border-radius: 12px;
-            border-left: 5px solid var(--accent);
-            max-width: 600px;
+            background-color: var(--bg-card); padding: 20px;
+            border-radius: 12px; border-left: 5px solid var(--accent); max-width: 600px;
+            position: relative;
         }
+        .thread-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .thread-author { font-size: 13px; color: var(--text-muted); }
+        .thread-title { font-size: 18px; margin: 0 0 10px 0; color: #fff; }
+        .thread-text { margin: 0 0 15px 0; color: #dcddde; line-height: 1.4; }
+        
+        .actions-row { display: flex; gap: 10px; }
+        .like-btn {
+            background-color: #1e1e24; border: 1px solid #3f3f4a;
+            color: var(--text-muted); padding: 6px 12px; border-radius: 20px;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+            font-size: 13px; font-weight: bold; transition: 0.2s;
+        }
+        .like-btn:hover { background-color: #2d2d35; color: #fff; }
+        .like-btn.liked { border-color: var(--like-color); color: var(--like-color); background-color: rgba(248, 75, 100, 0.1); }
 
-        .thread-author {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 5px;
+        .sub-btn {
+            background: none; border: 1px solid var(--text-muted);
+            color: var(--text-muted); padding: 4px 10px; border-radius: 6px;
+            font-size: 12px; cursor: pointer; font-weight: 500; transition: 0.2s;
         }
-
-        .thread-title {
-            font-size: 18px;
-            margin: 0 0 10px 0;
-            color: #fff;
-        }
-
-        .thread-text {
-            margin: 0;
-            color: #dcddde;
-            line-height: 1.4;
-        }
+        .sub-btn:hover { border-color: #fff; color: #fff; }
+        .sub-btn.subscribed { border-color: var(--sub-color); color: var(--sub-color); background-color: rgba(35, 165, 90, 0.1); }
     </style>
 </head>
 <body>
 
+    <div id="auth-screen" class="auth-overlay" style="display: none;">
+        <div class="auth-box">
+            <h2 style="margin-top:0; color:var(--accent);">Добро пожаловать в SRKChat!</h2>
+            <p style="color: var(--text-muted); font-size: 14px;">Введите ваш уникальный SRKID для входа в систему досок объявлений.</p>
+            <input type="text" id="username-input" class="input-field" placeholder="Например: Stepa, Roma, Katya" style="width:93%; margin-bottom:15px; text-align:center;">
+            <button class="submit-btn" id="login-submit-btn" style="width:100%;">Войти в систему</button>
+        </div>
+    </div>
+
     <div class="sidebar">
         <div class="logo">SRKChat</div>
+        <div class="user-tag" id="current-user-display" onclick="logout()"></div>
         <button class="menu-btn active" id="btn-new" onclick="switchTab('new')">🆕 Новейшие ветки</button>
+        <button class="menu-btn" id="btn-trending" onclick="switchTab('trending')">🔥 Трендовые ветки</button>
+        <button class="menu-btn" id="btn-my" onclick="switchTab('my')">👤 Ваши ветки</button>
+        <button class="menu-btn" id="btn-friends" onclick="switchTab('friends')">👥 Ветки ваших друзей</button>
         <button class="menu-btn" id="btn-create" onclick="switchTab('create')">✍️ Создать ветку</button>
     </div>
 
-    <div class="main-content" id="feed-container">
-        <!-- Контент управляется JS -->
-    </div>
-
-    <!-- Подключаем Firebase модули через CDN (Модульный синтаксис 2026 года) -->
+    <div class="main-content" id="feed-container"></div>
     <script type="module">
-        import { initializeApp } from "https://unpkg.com";
-        import { getDatabase, ref, push, onValue } from "https://unpkg.com";
+        import { initializeApp } from "https://gstatic.com";
+        import { getDatabase, ref, push, onValue, update } from "https://gstatic.com";
 
-        // !!! ВСТАВЬ СЮДА СВОИ ДАННЫЕ ИЗ КОНСОЛИ FIREBASE !!!
         const firebaseConfig = {
             apiKey: "AIzaSyBSGYaM4f52xHRggUpf8Y7IgeSjyWHqu7Q",
             authDomain: "srkchat-a8a58.firebaseapp.com",
@@ -156,103 +165,220 @@
             appId: "1:18129792978:web:cb5c28f01ba347bb09e20b"
         };
 
-        // Инициализация Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Глобальный массив для хранения веток
-        let allThreads = [];
+        let currentSRKID = localStorage.getItem('srkid') || '';
+        let allRoots = [];
+        let currentTab = 'new';
+        let activeRootId = null;
 
-        // Переключение вкладок
+        function checkAuth() {
+            if (!currentSRKID) {
+                document.getElementById('auth-screen').style.display = 'flex';
+            } else {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('current-user-display').innerText = `@${currentSRKID} (Выйти)`;
+                switchTab(currentTab);
+            }
+        }
+
+        document.getElementById('login-submit-btn').onclick = function() {
+            const input = document.getElementById('username-input').value.trim();
+            if (!input) { alert("Введите корректный SRKID!"); return; }
+            currentSRKID = input.replace(/[^a-zA-Z0-9_а-яА-Я]/g, ""); 
+            localStorage.setItem('srkid', currentSRKID);
+            checkAuth();
+        };
+
+        window.logout = function() {
+            if(confirm("Хочешь сменить SRKID?")) {
+                localStorage.removeItem('srkid');
+                currentSRKID = '';
+                checkAuth();
+            }
+        }
         window.switchTab = function(tab) {
+            currentTab = tab;
+            activeRootId = null; 
             const container = document.getElementById('feed-container');
             document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
             
             if(tab === 'create') {
                 document.getElementById('btn-create').classList.add('active');
                 container.innerHTML = `
-                    <h2>Создать новую ветку (Рут)</h2>
+                    <h2>Запустить новый Рут (Начало обсуждения)</h2>
                     <div class="create-thread-form">
-                        <input type="text" id="srkid-input" class="input-field" placeholder="Твой SRKID (например, Stepa_01)">
-                        <input type="text" id="title-input" class="input-field" placeholder="Главный заголовок ветки">
+                        <div style="font-size:14px; color:var(--text-muted)">Автор: <b style="color:#fff">@${escapeHtml(currentSRKID)}</b></div>
+                        <input type="text" id="title-input" class="input-field" placeholder="Главный заголовок рута">
                         <textarea id="text-input" class="input-field" rows="5" placeholder="Текст твоего рута..."></textarea>
-                        <button class="submit-btn" id="send-btn">Запустить ветку</button>
+                        <button class="submit-btn" id="send-btn">Создать Рут</button>
                     </div>
                 `;
-                document.getElementById('send-btn').onclick = createThread;
+                document.getElementById('send-btn').onclick = createRoot;
             } else if (tab === 'new') {
                 document.getElementById('btn-new').classList.add('active');
-                renderThreads();
+                renderRoots(allRoots, '🆕 Новейшие ветки');
+            } else if (tab === 'trending') {
+                document.getElementById('btn-trending').classList.add('active');
+                const trending = [...allRoots].sort((a, b) => {
+                    const likesA = a.likes ? Object.keys(a.likes).length : 0;
+                    const likesB = b.likes ? Object.keys(b.likes).length : 0;
+                    return likesB - likesA;
+                });
+                renderRoots(trending, '🔥 Трендовые ветки');
+            } else if (tab === 'my') {
+                document.getElementById('btn-my').classList.add('active');
+                const my = allRoots.filter(r => r.author === currentSRKID);
+                renderRoots(my, '👤 Ваши ветки');
+            } else if (tab === 'friends') {
+                document.getElementById('btn-friends').classList.add('active');
+                let following = JSON.parse(localStorage.getItem(`following_${currentSRKID}`)) || [];
+                const friends = allRoots.filter(r => following.includes(r.author));
+                renderRoots(friends, '👥 Ветки ваших друзей');
             }
         }
 
-        // Функция отправки ветки в Firebase
-        function createThread() {
-            const srkid = document.getElementById('srkid-input').value.trim();
+        function createRoot() {
             const title = document.getElementById('title-input').value.trim();
             const text = document.getElementById('text-input').value.trim();
+            if (!title || !text) { alert("Заполни все поля!"); return; }
 
-            if (!srkid || !title || !text) {
-                alert("Заполни все поля, Стёп!");
-                return;
-            }
-
-            // Отправляем объект в ветку 'threads' базы данных
-            push(ref(db, 'threads'), {
-                author: srkid,
+            push(ref(db, 'roots'), {
+                author: currentSRKID,
                 title: title,
                 text: text,
                 timestamp: Date.now()
-            }).then(() => {
-                switchTab('new'); // Переключаемся на главную после отправки
-            }).catch((error) => {
-                alert("Ошибка отправки: " + error.message);
-            });
+            }).then(() => { switchTab('new'); });
+        }
+        window.createReply = function(rootId) {
+            const textInput = document.getElementById('reply-input');
+            const text = textInput.value.trim();
+            if (!text) { alert("Нельзя отправить пустое сообщение!"); return; }
+
+            push(ref(db, `roots/${rootId}/replies`), {
+                author: currentSRKID,
+                text: text,
+                timestamp: Date.now()
+            }).then(() => { textInput.value = ''; });
         }
 
-        // Слушаем изменения в базе Firebase в реальном времени
-        onValue(ref(db, 'threads'), (snapshot) => {
-            allThreads = [];
+        window.toggleLike = function(rootId) {
+            const root = allRoots.find(r => r.id === rootId);
+            if (!root) return;
+            const hasLiked = root.likes && root.likes[currentSRKID];
+            const updates = {};
+            updates[`roots/${rootId}/likes/${currentSRKID}`] = hasLiked ? null : true;
+            update(ref(db), updates);
+        }
+
+        window.toggleSubscribe = function(authorId) {
+            if (authorId === currentSRKID) { alert("На себя нельзя подписаться!"); return; }
+            let following = JSON.parse(localStorage.getItem(`following_${currentSRKID}`)) || [];
+            const index = following.indexOf(authorId);
+            if (index > -1) following.splice(index, 1);
+            else following.push(authorId);
+            localStorage.setItem(`following_${currentSRKID}`, JSON.stringify(following));
+            if (activeRootId) viewRoot(activeRootId); else switchTab(currentTab);
+        }
+
+        window.viewRoot = function(rootId) {
+            activeRootId = rootId;
+            const root = allRoots.find(r => r.id === rootId);
+            if (!root) return;
+
+            const container = document.getElementById('feed-container');
+            const repliesArray = root.replies ? Object.values(root.replies) : [];
+            const messagesCount = repliesArray.length;
+
+            const statusBadge = messagesCount > 100 
+                ? `<span style="background:#8a2be2; padding:3px 8px; border-radius:10px; font-size:11px; font-weight:bold;">🌳 ТРИ (TREE)</span>`
+                : `<span style="background:#5865F2; padding:3px 8px; border-radius:10px; font-size:11px; font-weight:bold;">🌿 ВЕТКА (${messagesCount})</span>`;
+
+            let html = `
+                <button class="submit-btn" onclick="switchTab('${currentTab}')" style="width:100px; margin-bottom:10px;">⬅ Назад</button>
+                <div class="thread-card" style="border-left-color: #ffd700;">
+                    <div class="thread-header">
+                        <div class="thread-author">Автор рута: @${escapeHtml(root.author)} ${statusBadge}</div>
+                    </div>
+                    <h3 class="thread-title">${escapeHtml(root.title)}</h3>
+                    <p class="thread-text">${escapeHtml(root.text)}</p>
+                </div>
+                <h3>Ответы:</h3>
+                <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+            `;
+
+            repliesArray.forEach(reply => {
+                html += `
+                    <div style="background:var(--bg-card); padding:15px; border-radius:8px; margin-left:20px; border-left:3px solid var(--text-muted);">
+                        <div style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">@${escapeHtml(reply.author)}</div>
+                        <div style="color:#fff;">${escapeHtml(reply.text)}</div>
+                    </div>
+                `;
+            });
+
+            html += `
+                </div>
+                <div class="create-thread-form">
+                    <textarea id="reply-input" class="input-field" rows="3" placeholder="Написать ответ в ветку..."></textarea>
+                    <button class="submit-btn" onclick="createReply('${root.id}')">Отправить ответ</button>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+        onValue(ref(db, 'roots'), (snapshot) => {
+            allRoots = [];
             const data = snapshot.val();
             if (data) {
-                // Превращаем объект Firebase в массив и сортируем (новые сверху)
-                allThreads = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
+                allRoots = Object.keys(data).map(key => ({
+                    id: key,
+                    ...data[key]
+                })).sort((a, b) => b.timestamp - a.timestamp);
             }
-            // Если мы сейчас на вкладке "Новейшие", обновляем интерфейс
-            if (document.getElementById('btn-new').classList.contains('active')) {
-                renderThreads();
-            }
+            if (activeRootId) viewRoot(activeRootId); else switchTab(currentTab);
         });
 
-        // Функция отрисовки веток на экране
-        function renderThreads() {
+        function renderRoots(rootsList, titleText) {
             const container = document.getElementById('feed-container');
-            container.innerHTML = `<h2>🆕 Новейшие ветки</h2>`;
+            container.innerHTML = `<h2>${titleText}</h2>`;
+            if (rootsList.length === 0) { container.innerHTML += `<p style="color:var(--text-muted)">Веток пока нет.</p>`; return; }
 
-            if (allThreads.length === 0) {
-                container.innerHTML += `<p style="color: var(--text-muted)">Веток пока нет. Будь первым, кто создаст рут!</p>`;
-                return;
-            }
+            rootsList.forEach(root => {
+                const totalLikes = root.likes ? Object.keys(root.likes).length : 0;
+                const isLikedByMe = root.likes && root.likes[currentSRKID] ? 'liked' : '';
+                const messagesCount = root.replies ? Object.keys(root.replies).length : 0;
+                
+                let following = JSON.parse(localStorage.getItem(`following_${currentSRKID}`)) || [];
+                const isSubbed = following.includes(root.author);
+                const subBtnText = isSubbed ? 'Отписаться' : 'Подписаться';
+                const subClass = isSubbed ? 'subscribed' : '';
+                const subButtonHtml = root.author !== currentSRKID ? `<button class="sub-btn ${subClass}" onclick="toggleSubscribe('${root.author}')">${subBtnText}</button>` : '';
 
-            allThreads.forEach(thread => {
+                const typeLabel = messagesCount > 100 ? '🌳 Три (Tree)' : '🌿 Ветка (Thread)';
+
                 const card = document.createElement('div');
                 card.className = 'thread-card';
                 card.innerHTML = `
-                    <div class="thread-author">Автор: @${escapeHtml(thread.author)}</div>
-                    <h3 class="thread-title">${escapeHtml(thread.title)}</h3>
-                    <p class="thread-text">${escapeHtml(thread.text)}</p>
+                    <div class="thread-header">
+                        <div class="thread-author">Автор: @${escapeHtml(root.author)} | <b style="color:var(--text-muted)">${typeLabel} (${messagesCount} отв.)</b></div>
+                        ${subButtonHtml}
+                    </div>
+                    <h3 class="thread-title" style="cursor:pointer; color:var(--accent);" onclick="viewRoot('${root.id}')">${escapeHtml(root.title)}</h3>
+                    <p class="thread-text">${escapeHtml(root.text)}</p>
+                    <div class="actions-row">
+                        <button class="like-btn ${isLikedByMe}" onclick="toggleLike('${root.id}')">❤️ <span>${totalLikes}</span></button>
+                        <button class="like-btn" onclick="viewRoot('${root.id}')">💬 Открыть ветку</button>
+                    </div>
                 `;
                 container.appendChild(card);
             });
         }
 
-        // Защита от вредоносного кода (XSS)
         function escapeHtml(text) {
             return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
-        // Стартовый запуск
-        switchTab('new');
+        checkAuth();
     </script>
 </body>
 </html>
