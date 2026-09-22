@@ -152,8 +152,8 @@
 
     <div class="main-content" id="feed-container"></div>
     <script type="module">
-        import { initializeApp } from "https://gstatic.com";
-        import { getDatabase, ref, push, onValue, update } from "https://gstatic.com";
+        import { initializeApp } from "https://unpkg.com";
+        import { getDatabase, ref, push, onValue, update } from "https://unpkg.com";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBSGYaM4f52xHRggUpf8Y7IgeSjyWHqu7Q",
@@ -167,45 +167,19 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-
-        let currentSRKID = localStorage.getItem('srkid') || '';
-        let allRoots = [];
-        let currentTab = 'new';
-        let activeRootId = null;
-
-        function checkAuth() {
-            if (!currentSRKID) {
-                document.getElementById('auth-screen').style.display = 'flex';
-            } else {
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('current-user-display').innerText = `@${currentSRKID} (Выйти)`;
-                window.switchTab(currentTab);
-            }
-        }
-
-        document.getElementById('login-submit-btn').onclick = function() {
-            const input = document.getElementById('username-input').value.trim();
-            if (!input) { alert("Введите корректный SRKID!"); return; }
-            currentSRKID = input.replace(/[^a-zA-Z0-9_а-яА-Я]/g, ""); 
-            localStorage.setItem('srkid', currentSRKID);
-            checkAuth();
-        };
-
-        window.logout = function() {
-            if(confirm("Хочешь сменить SRKID?")) {
-                localStorage.removeItem('srkid');
-                currentSRKID = '';
-                checkAuth();
-            }
-        }
-        window.switchTab = function(tab) {
+        function switchTab(tab) {
             currentTab = tab;
             activeRootId = null; 
             const container = document.getElementById('feed-container');
-            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.querySelectorAll('.menu-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.getAttribute('data-tab') === tab) {
+                    btn.classList.add('active');
+                }
+            });
             
             if(tab === 'create') {
-                document.getElementById('btn-create').classList.add('active');
                 container.innerHTML = `
                     <h2>Запустить новый Рут (Начало обсуждения)</h2>
                     <div class="create-thread-form">
@@ -217,10 +191,8 @@
                 `;
                 document.getElementById('send-btn').onclick = createRoot;
             } else if (tab === 'new') {
-                document.getElementById('btn-new').classList.add('active');
                 renderRoots(allRoots, '🆕 Новейшие ветки');
             } else if (tab === 'trending') {
-                document.getElementById('btn-trending').classList.add('active');
                 const trending = [...allRoots].sort((a, b) => {
                     const likesA = a.likes ? Object.keys(a.likes).length : 0;
                     const likesB = b.likes ? Object.keys(b.likes).length : 0;
@@ -228,16 +200,21 @@
                 });
                 renderRoots(trending, '🔥 Трендовые ветки');
             } else if (tab === 'my') {
-                document.getElementById('btn-my').classList.add('active');
                 const my = allRoots.filter(r => r.author === currentSRKID);
                 renderRoots(my, '👤 Ваши ветки');
             } else if (tab === 'friends') {
-                document.getElementById('btn-friends').classList.add('active');
                 let following = JSON.parse(localStorage.getItem(`following_${currentSRKID}`)) || [];
                 const friends = allRoots.filter(r => following.includes(r.author));
                 renderRoots(friends, '👥 Ветки ваших друзей');
             }
         }
+
+        document.querySelectorAll('.sidebar .menu-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const tab = this.getAttribute('data-tab');
+                switchTab(tab);
+            });
+        });
 
         function createRoot() {
             const title = document.getElementById('title-input').value.trim();
@@ -249,9 +226,9 @@
                 title: title,
                 text: text,
                 timestamp: Date.now()
-            }).then(() => { window.switchTab('new'); });
+            }).then(() => { switchTab('new'); });
         }
-        window.createReply = function(rootId) {
+        function createReply(rootId) {
             const textInput = document.getElementById('reply-input');
             const text = textInput.value.trim();
             if (!text) { alert("Нельзя отправить пустое сообщение!"); return; }
@@ -263,7 +240,7 @@
             }).then(() => { textInput.value = ''; });
         }
 
-        window.toggleLike = function(rootId) {
+        function toggleLike(rootId) {
             const root = allRoots.find(r => r.id === rootId);
             if (!root) return;
             const hasLiked = root.likes && root.likes[currentSRKID];
@@ -272,17 +249,17 @@
             update(ref(db), updates);
         }
 
-        window.toggleSubscribe = function(authorId) {
+        function toggleSubscribe(authorId) {
             if (authorId === currentSRKID) { alert("На себя нельзя подписаться!"); return; }
             let following = JSON.parse(localStorage.getItem(`following_${currentSRKID}`)) || [];
             const index = following.indexOf(authorId);
             if (index > -1) following.splice(index, 1);
             else following.push(authorId);
             localStorage.setItem(`following_${currentSRKID}`, JSON.stringify(following));
-            if (activeRootId) window.viewRoot(activeRootId); else window.switchTab(currentTab);
+            if (activeRootId) viewRoot(activeRootId); else switchTab(currentTab);
         }
 
-        window.viewRoot = function(rootId) {
+        function viewRoot(rootId) {
             activeRootId = rootId;
             const root = allRoots.find(r => r.id === rootId);
             if (!root) return;
@@ -295,8 +272,8 @@
                 ? `<span style="background:#8a2be2; padding:3px 8px; border-radius:10px; font-size:11px; font-weight:bold;">🌳 ТРИ (TREE)</span>`
                 : `<span style="background:#5865F2; padding:3px 8px; border-radius:10px; font-size:11px; font-weight:bold;">🌿 ВЕТКА (${messagesCount})</span>`;
 
-            let html = `
-                <button class="submit-btn" onclick="window.switchTab('${currentTab}')" style="width:100px; margin-bottom:10px;">⬅ Назад</button>
+            container.innerHTML = `
+                <button class="submit-btn" id="back-feed-btn" style="width:100px; margin-bottom:10px;">⬅ Назад</button>
                 <div class="thread-card" style="border-left-color: #ffd700;">
                     <div class="thread-header">
                         <div class="thread-author">Автор рута: @${escapeHtml(root.author)} ${statusBadge}</div>
@@ -305,26 +282,26 @@
                     <p class="thread-text">${escapeHtml(root.text)}</p>
                 </div>
                 <h3>Ответы:</h3>
-                <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
-            `;
-
-            repliesArray.forEach(reply => {
-                html += `
-                    <div style="background:var(--bg-card); padding:15px; border-radius:8px; margin-left:20px; border-left:3px solid var(--text-muted);">
-                        <div style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">@${escapeHtml(reply.author)}</div>
-                        <div style="color:#fff;">${escapeHtml(reply.text)}</div>
-                    </div>
-                `;
-            });
-
-            html += `
-                </div>
+                <div id="replies-list-box" style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;"></div>
                 <div class="create-thread-form">
                     <textarea id="reply-input" class="input-field" rows="3" placeholder="Написать ответ в ветку..."></textarea>
-                    <button class="submit-btn" onclick="window.createReply('${root.id}')">Отправить ответ</button>
+                    <button class="submit-btn" id="submit-reply-btn">Отправить ответ</button>
                 </div>
             `;
-            container.innerHTML = html;
+
+            document.getElementById('back-feed-btn').onclick = () => switchTab(currentTab);
+            document.getElementById('submit-reply-btn').onclick = () => createReply(root.id);
+
+            const listSubBox = document.getElementById('replies-list-box');
+            repliesArray.forEach(reply => {
+                const rDiv = document.createElement('div');
+                rDiv.style = "background:var(--bg-card); padding:15px; border-radius:8px; margin-left:20px; border-left:3px solid var(--text-muted);";
+                rDiv.innerHTML = `
+                    <div style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">@${escapeHtml(reply.author)}</div>
+                    <div style="color:#fff;">${escapeHtml(reply.text)}</div>
+                `;
+                listSubBox.appendChild(rDiv);
+            });
         }
         onValue(ref(db, 'roots'), (snapshot) => {
             allRoots = [];
@@ -335,7 +312,7 @@
                     ...data[key]
                 })).sort((a, b) => b.timestamp - a.timestamp);
             }
-            if (activeRootId) window.viewRoot(activeRootId); else window.switchTab(currentTab);
+            if (activeRootId) viewRoot(activeRootId); else switchTab(currentTab);
         });
 
         function renderRoots(rootsList, titleText) {
@@ -351,8 +328,7 @@
                 let following = JSON.parse(localStorage.getItem(`following_${currentSRKID}`)) || [];
                 const isSubbed = following.includes(root.author);
                 const subBtnText = isSubbed ? 'Отписаться' : 'Подписаться';
-                const subClass = isSubbed ? 'subscribed' : '';
-                const subButtonHtml = root.author !== currentSRKID ? `<button class="sub-btn ${subClass}" onclick="window.toggleSubscribe('${root.author}')">${subBtnText}</button>` : '';
+                const subClass = isSubbed ? 'subscribed';
 
                 const typeLabel = messagesCount > 100 ? '🌳 Три (Tree)' : '🌿 Ветка (Thread)';
 
@@ -361,15 +337,28 @@
                 card.innerHTML = `
                     <div class="thread-header">
                         <div class="thread-author">Автор: @${escapeHtml(root.author)} | <b style="color:var(--text-muted)">${typeLabel} (${messagesCount} отв.)</b></div>
-                        ${subButtonHtml}
+                        <div class="sub-btn-placeholder"></div>
                     </div>
-                    <h3 class="thread-title" style="cursor:pointer; color:var(--accent);" onclick="window.viewRoot('${root.id}')">${escapeHtml(root.title)}</h3>
+                    <h3 class="thread-title" style="cursor:pointer; color:var(--accent);">${escapeHtml(root.title)}</h3>
                     <p class="thread-text">${escapeHtml(root.text)}</p>
                     <div class="actions-row">
-                        <button class="like-btn ${isLikedByMe}" onclick="window.toggleLike('${root.id}')">❤️ <span>${totalLikes}</span></button>
-                        <button class="like-btn" onclick="window.viewRoot('${root.id}')">💬 Открыть ветку</button>
+                        <button class="like-btn ${isLikedByMe}" id="like-${root.id}">❤️ <span>${totalLikes}</span></button>
+                        <button class="like-btn" id="open-${root.id}">💬 Открыть ветку</button>
                     </div>
                 `;
+
+                if (root.author !== currentSRKID) {
+                    const sBtn = document.createElement('button');
+                    sBtn.className = `sub-btn ${subClass}`;
+                    sBtn.innerText = subBtnText;
+                    sBtn.onclick = () => toggleSubscribe(root.author);
+                    card.querySelector('.sub-btn-placeholder').appendChild(sBtn);
+                }
+
+                card.querySelector('.thread-title').onclick = () => viewRoot(root.id);
+                card.querySelector(`#like-${root.id}`).onclick = () => toggleLike(root.id);
+                card.querySelector(`#open-${root.id}`).onclick = () => viewRoot(root.id);
+
                 container.appendChild(card);
             });
         }
@@ -382,3 +371,34 @@
     </script>
 </body>
 </html>
+
+        let currentSRKID = localStorage.getItem('srkid') || '';
+        let allRoots = [];
+        let currentTab = 'new';
+        let activeRootId = null;
+
+        function checkAuth() {
+            if (!currentSRKID) {
+                document.getElementById('auth-screen').style.display = 'flex';
+            } else {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('current-user-display').innerText = `@${currentSRKID} (Выйти)`;
+                switchTab(currentTab);
+            }
+        }
+
+        document.getElementById('login-submit-btn').onclick = function() {
+            const input = document.getElementById('username-input').value.trim();
+            if (!input) { alert("Введите корректный SRKID!"); return; }
+            currentSRKID = input.replace(/[^a-zA-Z0-9_а-яА-Я]/g, ""); 
+            localStorage.setItem('srkid', currentSRKID);
+            checkAuth();
+        };
+
+        document.getElementById('current-user-display').onclick = function() {
+            if(confirm("Хочешь сменить SRKID?")) {
+                localStorage.removeItem('srkid');
+                currentSRKID = '';
+                checkAuth();
+            }
+        };
